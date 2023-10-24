@@ -5,11 +5,10 @@ export function clamp(number, lowerBound, upperBound) {
 }
 
 export const safePreventDefault = event => {
-  const passiveEvents = ["onTouchStart", "onTouchMove", "onWheel"];
-  if(!passiveEvents.includes(event._reactName)) {
+  if (event.cancelable) {
     event.preventDefault();
   }
-}
+};
 
 export const getOnDemandLazySlides = spec => {
   let onDemandSlides = [];
@@ -63,12 +62,12 @@ export const getSwipeDirection = (touchObject, verticalSwiping = false) => {
     swipeAngle = 360 - Math.abs(swipeAngle);
   }
   if (
-    (swipeAngle <= 45 && swipeAngle >= 0) ||
-    (swipeAngle <= 360 && swipeAngle >= 315)
+    (swipeAngle <= 60 && swipeAngle >= 0) ||
+    (swipeAngle <= 360 && swipeAngle >= 300)
   ) {
     return "left";
   }
-  if (swipeAngle >= 135 && swipeAngle <= 225) {
+  if (swipeAngle >= 120 && swipeAngle <= 210) {
     return "right";
   }
   if (verticalSwiping === true) {
@@ -200,7 +199,10 @@ export const slideHandler = spec => {
       lazyLoadedList,
       targetSlide: animationSlide
     };
-    nextState = { animating: false, targetSlide: animationSlide };
+    nextState = {
+      animating: false,
+      targetSlide: animationSlide
+    };
   } else {
     finalSlide = animationSlide;
     if (animationSlide < 0) {
@@ -223,21 +225,33 @@ export const slideHandler = spec => {
       finalSlide = slideCount - slidesToShow;
     }
 
-    animationLeft = getTrackLeft({ ...spec, slideIndex: animationSlide });
-    finalLeft = getTrackLeft({ ...spec, slideIndex: finalSlide });
+    animationLeft = getTrackLeft({
+      ...spec,
+      slideIndex: animationSlide
+    });
+    finalLeft = getTrackLeft({
+      ...spec,
+      slideIndex: finalSlide
+    });
     if (!infinite) {
       if (animationLeft === finalLeft) animationSlide = finalSlide;
       animationLeft = finalLeft;
     }
     if (lazyLoad) {
       lazyLoadedList = lazyLoadedList.concat(
-        getOnDemandLazySlides({ ...spec, currentSlide: animationSlide })
+        getOnDemandLazySlides({
+          ...spec,
+          currentSlide: animationSlide
+        })
       );
     }
     if (!useCSS) {
       state = {
         currentSlide: finalSlide,
-        trackStyle: getTrackCSS({ ...spec, left: finalLeft }),
+        trackStyle: getTrackCSS({
+          ...spec,
+          left: finalLeft
+        }),
         lazyLoadedList,
         targetSlide
       };
@@ -245,14 +259,20 @@ export const slideHandler = spec => {
       state = {
         animating: true,
         currentSlide: finalSlide,
-        trackStyle: getTrackAnimateCSS({ ...spec, left: animationLeft }),
+        trackStyle: getTrackAnimateCSS({
+          ...spec,
+          left: animationLeft
+        }),
         lazyLoadedList,
         targetSlide
       };
       nextState = {
         animating: false,
         currentSlide: finalSlide,
-        trackStyle: getTrackCSS({ ...spec, left: finalLeft }),
+        trackStyle: getTrackCSS({
+          ...spec,
+          left: finalLeft
+        }),
         swipeLeft: null,
         targetSlide
       };
@@ -302,7 +322,10 @@ export const changeSlide = (spec, options) => {
     // Click on the slides
     targetSlide = options.index;
     if (infinite) {
-      let direction = siblingDirection({ ...spec, targetSlide });
+      let direction = siblingDirection({
+        ...spec,
+        targetSlide
+      });
       if (targetSlide > options.currentSlide && direction === "left") {
         targetSlide = targetSlide - slideCount;
       } else if (targetSlide < options.currentSlide && direction === "right") {
@@ -323,7 +346,7 @@ export const keyHandler = (e, accessibility, rtl) => {
 };
 
 export const swipeStart = (e, swipe, draggable) => {
-  e.target.tagName === "IMG" && safePreventDefault(e);
+  // e.target.tagName === 'IMG' && safePreventDefault(e);
   if (!swipe || (!draggable && e.type.indexOf("mouse") !== -1)) return "";
   return {
     dragging: true,
@@ -359,8 +382,9 @@ export const swipeMove = (e, spec) => {
     listWidth
   } = spec;
   if (scrolling) return;
-  if (animating) return safePreventDefault(e);
-  if (vertical && swipeToSlide && verticalSwiping) safePreventDefault(e);
+  // if (animating && !swipeToSlide) return safePreventDefault(e);
+  // if (vertical && swipeToSlide && verticalSwiping)
+  //   safePreventDefault(e);
   let swipeLeft,
     state = {};
   let curLeft = getTrackLeft(spec);
@@ -373,6 +397,7 @@ export const swipeMove = (e, spec) => {
     Math.sqrt(Math.pow(touchObject.curY - touchObject.startY, 2))
   );
   if (!verticalSwiping && !swiping && verticalSwipeLength > 10) {
+    // safePreventDefault(e);
     return { scrolling: true };
   }
   if (verticalSwiping) touchObject.swipeLength = verticalSwipeLength;
@@ -386,9 +411,12 @@ export const swipeMove = (e, spec) => {
   let touchSwipeLength = touchObject.swipeLength;
   if (!infinite) {
     if (
-      (currentSlide === 0 && (swipeDirection === "right" || swipeDirection === "down")) ||
-      (currentSlide + 1 >= dotCount && (swipeDirection === "left" || swipeDirection === "up")) ||
-      (!canGoNext(spec) && (swipeDirection === "left" || swipeDirection === "up"))
+      (currentSlide === 0 &&
+        (swipeDirection === "right" || swipeDirection === "down")) ||
+      (currentSlide + 1 >= dotCount &&
+        (swipeDirection === "left" || swipeDirection === "up")) ||
+      (!canGoNext(spec) &&
+        (swipeDirection === "left" || swipeDirection === "up"))
     ) {
       touchSwipeLength = touchObject.swipeLength * edgeFriction;
       if (edgeDragged === false && onEdge) {
@@ -426,6 +454,8 @@ export const swipeMove = (e, spec) => {
   ) {
     return state;
   }
+  // This is what eats scroll when it thinks we're swiping. Need to sync this better with the
+  // vertical/horizontal behavior
   if (touchObject.swipeLength > 10) {
     state["swiping"] = true;
     safePreventDefault(e);
@@ -499,7 +529,10 @@ export const swipeEnd = (e, spec) => {
   } else {
     // Adjust the track back to it's original position.
     let currentLeft = getTrackLeft(spec);
-    state["trackStyle"] = getTrackAnimateCSS({ ...spec, left: currentLeft });
+    state["trackStyle"] = getTrackAnimateCSS({
+      ...spec,
+      left: currentLeft
+    });
   }
   return state;
 };

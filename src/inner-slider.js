@@ -43,7 +43,9 @@ export class InnerSlider extends React.Component {
     const ssrState = this.ssrInit();
     this.state = { ...this.state, ...ssrState };
   }
-  listRefHandler = ref => (this.list = ref);
+  listRefHandler = ref => {
+    this.list = ref;
+  };
   trackRefHandler = ref => (this.track = ref);
   adaptHeight = () => {
     if (this.props.adaptiveHeight && this.list) {
@@ -69,7 +71,11 @@ export class InnerSlider extends React.Component {
         }
       }
     }
-    let spec = { listRef: this.list, trackRef: this.track, ...this.props };
+    let spec = {
+      listRef: this.list,
+      trackRef: this.track,
+      ...this.props
+    };
     this.updateState(spec, true, () => {
       this.adaptHeight();
       this.props.autoplay && this.autoPlay("update");
@@ -98,6 +104,24 @@ export class InnerSlider extends React.Component {
       );
     if (window.addEventListener) {
       window.addEventListener("resize", this.onWindowResized);
+
+      this.abortController = new AbortController();
+
+      this.list.addEventListener("touchstart", this.swipeStart, {
+        passive: false,
+        signal: this.abortController.signal
+      });
+
+      this.list.addEventListener("touchmove", this.swipeMove, {
+        passive: false,
+        signal: this.abortController.signal
+      });
+
+      this.list.addEventListener("touchend", this.touchEnd, {
+        passive: false,
+
+        signal: this.abortController.signal
+      });
     } else {
       window.attachEvent("onresize", this.onWindowResized);
     }
@@ -115,6 +139,9 @@ export class InnerSlider extends React.Component {
     }
     if (window.addEventListener) {
       window.removeEventListener("resize", this.onWindowResized);
+
+      // Clear our touch listeners.
+      this.abortController.abort();
     } else {
       window.detachEvent("onresize", this.onWindowResized);
     }
@@ -225,7 +252,11 @@ export class InnerSlider extends React.Component {
   };
   updateState = (spec, setTrackStyle, callback) => {
     let updatedState = initializedState(spec);
-    spec = { ...spec, ...updatedState, slideIndex: updatedState.currentSlide };
+    spec = {
+      ...spec,
+      ...updatedState,
+      slideIndex: updatedState.currentSlide
+    };
     let targetLeft = getTrackLeft(spec);
     spec = { ...spec, left: targetLeft };
     let trackStyle = getTrackCSS(spec);
@@ -281,7 +312,11 @@ export class InnerSlider extends React.Component {
       };
     }
     let childrenCount = React.Children.count(this.props.children);
-    const spec = { ...this.props, ...this.state, slideCount: childrenCount };
+    const spec = {
+      ...this.props,
+      ...this.state,
+      slideCount: childrenCount
+    };
     let slideCount = getPreClones(spec) + getPostClones(spec) + childrenCount;
     let trackWidth = (100 / this.props.slidesToShow) * slideCount;
     let slideWidth = 100 / slideCount;
@@ -441,8 +476,8 @@ export class InnerSlider extends React.Component {
   };
   clickHandler = e => {
     if (this.clickable === false) {
-      e.stopPropagation();
-      e.preventDefault();
+      // e.stopPropagation();
+      // e.preventDefault();
     }
     this.clickable = true;
   };
@@ -454,24 +489,26 @@ export class InnerSlider extends React.Component {
     this.changeSlide(options);
   };
   disableBodyScroll = () => {
-    const preventDefault = e => {
-      e = e || window.event;
-      if (e.preventDefault) e.preventDefault();
-      e.returnValue = false;
-    };
-    window.ontouchmove = preventDefault;
+    // const preventDefault = (e) => {
+    //   e = e || window.event;
+    //   if (e.preventDefault) e.preventDefault();
+    //   e.returnValue = false;
+    // };
+    // window.ontouchmove = preventDefault;
   };
   enableBodyScroll = () => {
     window.ontouchmove = null;
   };
   swipeStart = e => {
-    if (this.props.verticalSwiping) {
-      this.disableBodyScroll();
-    }
+    // if (this.props.verticalSwiping) {
+    // this.disableBodyScroll();
+    // }
     let state = swipeStart(e, this.props.swipe, this.props.draggable);
     state !== "" && this.setState(state);
   };
   swipeMove = e => {
+    if (!this.state.dragging) return;
+
     let state = swipeMove(e, {
       ...this.props,
       ...this.state,
@@ -499,9 +536,9 @@ export class InnerSlider extends React.Component {
     this.setState(state);
     if (triggerSlideHandler === undefined) return;
     this.slideHandler(triggerSlideHandler);
-    if (this.props.verticalSwiping) {
-      this.enableBodyScroll();
-    }
+    // if (this.props.verticalSwiping) {
+    // this.enableBodyScroll();
+    // }
   };
   touchEnd = e => {
     this.swipeEnd(e);
@@ -723,7 +760,10 @@ export class InnerSlider extends React.Component {
       }
     }
 
-    const listStyle = { ...verticalHeightStyle, ...centerPaddingStyle };
+    const listStyle = {
+      ...verticalHeightStyle,
+      ...centerPaddingStyle
+    };
     const touchMove = this.props.touchMove;
     let listProps = {
       className: "slick-list",
@@ -733,9 +773,6 @@ export class InnerSlider extends React.Component {
       onMouseMove: this.state.dragging && touchMove ? this.swipeMove : null,
       onMouseUp: touchMove ? this.swipeEnd : null,
       onMouseLeave: this.state.dragging && touchMove ? this.swipeEnd : null,
-      onTouchStart: touchMove ? this.swipeStart : null,
-      onTouchMove: this.state.dragging && touchMove ? this.swipeMove : null,
-      onTouchEnd: touchMove ? this.touchEnd : null,
       onTouchCancel: this.state.dragging && touchMove ? this.swipeEnd : null,
       onKeyDown: this.props.accessibility ? this.keyHandler : null
     };
