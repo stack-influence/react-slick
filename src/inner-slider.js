@@ -479,7 +479,6 @@ export class InnerSlider extends React.Component {
     }
   };
   clickHandler = e => {
-    console.log("click", this.clickable);
     if (this.clickable === false) {
       e.stopPropagation();
       e.stopImmediatePropagation();
@@ -494,27 +493,11 @@ export class InnerSlider extends React.Component {
   selectHandler = options => {
     this.changeSlide(options);
   };
-  disableBodyScroll = () => {
-    // const preventDefault = (e) => {
-    //   e = e || window.event;
-    //   if (e.preventDefault) e.preventDefault();
-    //   e.returnValue = false;
-    // };
-    // window.ontouchmove = preventDefault;
-  };
-  enableBodyScroll = () => {
-    window.ontouchmove = null;
-  };
   swipeStart = e => {
-    console.log("start");
-    // if (this.props.verticalSwiping) {
-    // this.disableBodyScroll();
-    // }
     let state = swipeStart(e, this.props.swipe, this.props.draggable);
     state !== "" && this.setState(state);
   };
   swipeMove = e => {
-    console.log("move");
     if (!this.state.dragging) return;
 
     let state = swipeMove(e, {
@@ -531,7 +514,6 @@ export class InnerSlider extends React.Component {
     this.setState(state);
   };
   swipeEnd = e => {
-    console.log("end");
     let state = swipeEnd(e, {
       ...this.props,
       ...this.state,
@@ -545,9 +527,6 @@ export class InnerSlider extends React.Component {
     this.setState(state);
     if (triggerSlideHandler === undefined) return;
     this.slideHandler(triggerSlideHandler);
-    // if (this.props.verticalSwiping) {
-    // this.enableBodyScroll();
-    // }
   };
   touchEnd = e => {
     this.swipeEnd(e);
