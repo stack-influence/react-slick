@@ -1,5 +1,16 @@
 import React from 'react';
 
+function isIos() {
+  return [
+    'iPad Simulator',
+    'iPhone Simulator',
+    'iPod Simulator',
+    'iPad',
+    'iPhone',
+    'iPod',
+  ].includes(navigator.platform);
+}
+
 export function clamp(number, lowerBound, upperBound) {
   return Math.max(lowerBound, Math.min(number, upperBound));
 }
@@ -501,7 +512,10 @@ export const swipeMove = (e, spec) => {
 
   // Bail if we don't have enough delta to make a decision on direction
   if (distance < 10 && !swipeLock) {
-    // safePreventDefault(e);
+    // On iOS, preventDefault on the first touchMove in a series stops scrolling for all of them,
+    // which we don't want. We don't want to allow scrolling until we've got a direction on Android
+    // though.
+    !isIos() && safePreventDefault(e);
     return null;
   }
 
