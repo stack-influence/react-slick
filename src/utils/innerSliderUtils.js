@@ -70,18 +70,23 @@ export const getSwipeDirection = (
   var xDist, yDist, r, swipeAngle;
   xDist = touchObject.startX - touchObject.curX;
   yDist = touchObject.startY - touchObject.curY;
+
   r = Math.atan2(yDist, xDist);
   swipeAngle = Math.round((r * 180) / Math.PI);
+
   if (swipeAngle < 0) {
-    swipeAngle = 360 - Math.abs(swipeAngle);
+    swipeAngle = swipeAngle + 360;
   }
+
+  console.log('swipeAngle', swipeAngle);
+
   if (
     (swipeAngle <= 60 && swipeAngle >= 0) ||
     (swipeAngle <= 360 && swipeAngle >= 300)
   ) {
     return 'left';
   }
-  if (swipeAngle >= 120 && swipeAngle <= 210) {
+  if (swipeAngle >= 120 && swipeAngle <= 250) {
     return 'right';
   }
   if (verticalSwiping === true) {
@@ -409,6 +414,7 @@ export const keyHandler = (e, accessibility, rtl) => {
 };
 
 export const swipeStart = (e, swipe, draggable) => {
+  console.log('swipeStart');
   e.target.tagName === 'IMG' &&
     e.type === 'mousedown' &&
     safePreventDefault(e);
@@ -449,20 +455,27 @@ export const swipeMove = (e, spec) => {
     swipeEvent,
     listHeight,
     listWidth,
+    swipeLock,
   } = spec;
-  if (scrolling) return;
-  if (animating) return safePreventDefault(e);
-  // if (vertical && swipeToSlide && verticalSwiping)
-  //   safePreventDefault(e);
+  console.log('swipeMove', spec);
+
+  if (scrolling) return null;
+  if (animating) {
+    safePreventDefault(e);
+    return null;
+  }
+
   let swipeLeft,
     state = {};
   let curLeft = getTrackLeft(spec);
+
   touchObject.curX = e.touches
     ? e.touches[0].pageX
     : e.clientX;
   touchObject.curY = e.touches
     ? e.touches[0].pageY
     : e.clientY;
+
   touchObject.swipeLength = Math.round(
     Math.sqrt(
       Math.pow(touchObject.curX - touchObject.startX, 2)
@@ -473,14 +486,41 @@ export const swipeMove = (e, spec) => {
       Math.pow(touchObject.curY - touchObject.startY, 2)
     )
   );
-  if (
-    !verticalSwiping &&
-    !swiping &&
-    verticalSwipeLength > 10
-  ) {
+  let distance = Math.round(
+    Math.sqrt(
+      Math.pow(touchObject.swipeLength, 2) +
+        Math.pow(verticalSwipeLength, 2)
+    )
+  );
+
+  console.log({
+    xDiff: touchObject.swipeLength,
+    yDiff: verticalSwipeLength,
+    distance,
+  });
+
+  // Bail if we don't have enough delta to make a decision on direction
+  if (distance < 10 && !swipeLock) {
     // safePreventDefault(e);
-    return { scrolling: true };
+    return null;
   }
+
+  let swipeDirection = getSwipeDirection(
+    touchObject,
+    verticalSwiping
+  );
+
+  console.log('swipeDirection', swipeDirection);
+
+  if (
+    ['up', 'down', 'vertical'].includes(swipeDirection) &&
+    !swiping
+  ) {
+    return { scrolling: true };
+  } else {
+    safePreventDefault(e);
+  }
+
   if (verticalSwiping)
     touchObject.swipeLength = verticalSwipeLength;
   let positionOffset =
@@ -491,10 +531,6 @@ export const swipeMove = (e, spec) => {
       touchObject.curY > touchObject.startY ? 1 : -1;
 
   let dotCount = Math.ceil(slideCount / slidesToScroll);
-  let swipeDirection = getSwipeDirection(
-    spec.touchObject,
-    verticalSwiping
-  );
   let touchSwipeLength = touchObject.swipeLength;
   if (!infinite) {
     if (
@@ -538,24 +574,28 @@ export const swipeMove = (e, spec) => {
   if (verticalSwiping) {
     swipeLeft = curLeft + touchSwipeLength * positionOffset;
   }
+
   state = {
     ...state,
     touchObject,
     swipeLeft,
+    swipeLock: true,
     trackStyle: getTrackCSS({ ...spec, left: swipeLeft }),
   };
+
+  // If xDiff < 80% yDiff, don't allow swiping (why?)
   if (
     Math.abs(touchObject.curX - touchObject.startX) <
     Math.abs(touchObject.curY - touchObject.startY) * 0.8
   ) {
     return state;
   }
-  // This is what eats scroll when it thinks we're swiping. Need to sync this better with the
-  // vertical/horizontal behavior
+
   if (touchObject.swipeLength > 10) {
     state['swiping'] = true;
     safePreventDefault(e);
   }
+
   return state;
 };
 export const swipeEnd = (e, spec) => {
@@ -592,6 +632,7 @@ export const swipeEnd = (e, spec) => {
     scrolling: false,
     swiping: false,
     swiped: false,
+    swipeLock: false,
     swipeLeft: null,
     touchObject: {},
   };

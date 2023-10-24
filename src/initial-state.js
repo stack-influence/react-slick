@@ -18,10 +18,11 @@ const initialState = {
   swipeLeft: null,
   swiped: false, // used by swipeEvent. differentites between touch and swipe.
   swiping: false,
+  swipeLock: false,
   touchObject: { startX: 0, startY: 0, curX: 0, curY: 0 },
   trackStyle: {},
   trackWidth: 0,
-  targetSlide: 0
+  targetSlide: 0,
 };
 
 export default initialState;
