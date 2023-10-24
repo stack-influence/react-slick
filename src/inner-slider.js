@@ -119,7 +119,11 @@ export class InnerSlider extends React.Component {
 
       this.list.addEventListener("touchend", this.touchEnd, {
         passive: false,
+        signal: this.abortController.signal
+      });
 
+      this.list.addEventListener("click", this.clickHandler, {
+        capture: true,
         signal: this.abortController.signal
       });
     } else {
@@ -475,9 +479,11 @@ export class InnerSlider extends React.Component {
     }
   };
   clickHandler = e => {
+    console.log("click", this.clickable);
     if (this.clickable === false) {
-      // e.stopPropagation();
-      // e.preventDefault();
+      e.stopPropagation();
+      e.stopImmediatePropagation();
+      e.preventDefault();
     }
     this.clickable = true;
   };
@@ -500,6 +506,7 @@ export class InnerSlider extends React.Component {
     window.ontouchmove = null;
   };
   swipeStart = e => {
+    console.log("start");
     // if (this.props.verticalSwiping) {
     // this.disableBodyScroll();
     // }
@@ -507,6 +514,7 @@ export class InnerSlider extends React.Component {
     state !== "" && this.setState(state);
   };
   swipeMove = e => {
+    console.log("move");
     if (!this.state.dragging) return;
 
     let state = swipeMove(e, {
@@ -523,6 +531,7 @@ export class InnerSlider extends React.Component {
     this.setState(state);
   };
   swipeEnd = e => {
+    console.log("end");
     let state = swipeEnd(e, {
       ...this.props,
       ...this.state,
@@ -768,7 +777,6 @@ export class InnerSlider extends React.Component {
     let listProps = {
       className: "slick-list",
       style: listStyle,
-      onClick: this.clickHandler,
       onMouseDown: touchMove ? this.swipeStart : null,
       onMouseMove: this.state.dragging && touchMove ? this.swipeMove : null,
       onMouseUp: touchMove ? this.swipeEnd : null,
