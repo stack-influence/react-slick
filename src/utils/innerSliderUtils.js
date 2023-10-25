@@ -89,8 +89,6 @@ export const getSwipeDirection = (
     swipeAngle = swipeAngle + 360;
   }
 
-  console.log('swipeAngle', swipeAngle);
-
   if (
     (swipeAngle <= 60 && swipeAngle >= 0) ||
     (swipeAngle <= 360 && swipeAngle >= 300)
@@ -425,7 +423,6 @@ export const keyHandler = (e, accessibility, rtl) => {
 };
 
 export const swipeStart = (e, swipe, draggable) => {
-  console.log('swipeStart');
   e.target.tagName === 'IMG' &&
     e.type === 'mousedown' &&
     safePreventDefault(e);
@@ -468,7 +465,6 @@ export const swipeMove = (e, spec) => {
     listWidth,
     swipeLock,
   } = spec;
-  console.log('swipeMove', spec);
 
   if (scrolling) return null;
   if (animating) {
@@ -504,12 +500,6 @@ export const swipeMove = (e, spec) => {
     )
   );
 
-  console.log({
-    xDiff: touchObject.swipeLength,
-    yDiff: verticalSwipeLength,
-    distance,
-  });
-
   // Bail if we don't have enough delta to make a decision on direction
   if (distance < 10 && !swipeLock) {
     // On iOS, preventDefault on the first touchMove in a series stops scrolling for all of them,
@@ -523,8 +513,6 @@ export const swipeMove = (e, spec) => {
     touchObject,
     verticalSwiping
   );
-
-  console.log('swipeDirection', swipeDirection);
 
   if (
     ['up', 'down', 'vertical'].includes(swipeDirection) &&

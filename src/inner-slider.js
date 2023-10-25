@@ -1,9 +1,9 @@
-"use strict";
+'use strict';
 
-import React from "react";
-import initialState from "./initial-state";
-import debounce from "lodash.debounce";
-import classnames from "classnames";
+import React from 'react';
+import initialState from './initial-state';
+import debounce from 'lodash.debounce';
+import classnames from 'classnames';
 import {
   getOnDemandLazySlides,
   extractObject,
@@ -19,13 +19,13 @@ import {
   getPreClones,
   getPostClones,
   getTrackLeft,
-  getTrackCSS
-} from "./utils/innerSliderUtils";
+  getTrackCSS,
+} from './utils/innerSliderUtils';
 
-import { Track } from "./track";
-import { Dots } from "./dots";
-import { PrevArrow, NextArrow } from "./arrows";
-import ResizeObserver from "resize-observer-polyfill";
+import { Track } from './track';
+import { Dots } from './dots';
+import { PrevArrow, NextArrow } from './arrows';
+import ResizeObserver from 'resize-observer-polyfill';
 
 export class InnerSlider extends React.Component {
   constructor(props) {
@@ -35,7 +35,7 @@ export class InnerSlider extends React.Component {
     this.state = {
       ...initialState,
       currentSlide: this.props.initialSlide,
-      slideCount: React.Children.count(this.props.children)
+      slideCount: React.Children.count(this.props.children),
     };
     this.callbackTimers = [];
     this.clickable = true;
@@ -43,16 +43,16 @@ export class InnerSlider extends React.Component {
     const ssrState = this.ssrInit();
     this.state = { ...this.state, ...ssrState };
   }
-  listRefHandler = ref => {
+  listRefHandler = (ref) => {
     this.list = ref;
   };
-  trackRefHandler = ref => (this.track = ref);
+  trackRefHandler = (ref) => (this.track = ref);
   adaptHeight = () => {
     if (this.props.adaptiveHeight && this.list) {
       const elem = this.list.querySelector(
         `[data-index="${this.state.currentSlide}"]`
       );
-      this.list.style.height = getHeight(elem) + "px";
+      this.list.style.height = getHeight(elem) + 'px';
     }
   };
   componentDidMount = () => {
@@ -60,11 +60,13 @@ export class InnerSlider extends React.Component {
     if (this.props.lazyLoad) {
       let slidesToLoad = getOnDemandLazySlides({
         ...this.props,
-        ...this.state
+        ...this.state,
       });
       if (slidesToLoad.length > 0) {
-        this.setState(prevState => ({
-          lazyLoadedList: prevState.lazyLoadedList.concat(slidesToLoad)
+        this.setState((prevState) => ({
+          lazyLoadedList: prevState.lazyLoadedList.concat(
+            slidesToLoad
+          ),
         }));
         if (this.props.onLazyLoad) {
           this.props.onLazyLoad(slidesToLoad);
@@ -74,20 +76,26 @@ export class InnerSlider extends React.Component {
     let spec = {
       listRef: this.list,
       trackRef: this.track,
-      ...this.props
+      ...this.props,
     };
     this.updateState(spec, true, () => {
       this.adaptHeight();
-      this.props.autoplay && this.autoPlay("update");
+      this.props.autoplay && this.autoPlay('update');
     });
-    if (this.props.lazyLoad === "progressive") {
-      this.lazyLoadTimer = setInterval(this.progressiveLazyLoad, 1000);
+    if (this.props.lazyLoad === 'progressive') {
+      this.lazyLoadTimer = setInterval(
+        this.progressiveLazyLoad,
+        1000
+      );
     }
     this.ro = new ResizeObserver(() => {
       if (this.state.animating) {
         this.onWindowResized(false); // don't set trackStyle hence don't break animation
         this.callbackTimers.push(
-          setTimeout(() => this.onWindowResized(), this.props.speed)
+          setTimeout(
+            () => this.onWindowResized(),
+            this.props.speed
+          )
         );
       } else {
         this.onWindowResized();
@@ -96,38 +104,61 @@ export class InnerSlider extends React.Component {
     this.ro.observe(this.list);
     document.querySelectorAll &&
       Array.prototype.forEach.call(
-        document.querySelectorAll(".slick-slide"),
-        slide => {
-          slide.onfocus = this.props.pauseOnFocus ? this.onSlideFocus : null;
-          slide.onblur = this.props.pauseOnFocus ? this.onSlideBlur : null;
+        document.querySelectorAll('.slick-slide'),
+        (slide) => {
+          slide.onfocus = this.props.pauseOnFocus
+            ? this.onSlideFocus
+            : null;
+          slide.onblur = this.props.pauseOnFocus
+            ? this.onSlideBlur
+            : null;
         }
       );
     if (window.addEventListener) {
-      window.addEventListener("resize", this.onWindowResized);
+      window.addEventListener(
+        'resize',
+        this.onWindowResized
+      );
 
       this.abortController = new AbortController();
 
-      this.list.addEventListener("touchstart", this.swipeStart, {
-        passive: false,
-        signal: this.abortController.signal
-      });
+      this.list.addEventListener(
+        'touchstart',
+        this.swipeStart,
+        {
+          passive: false,
+          signal: this.abortController.signal,
+        }
+      );
 
-      this.list.addEventListener("touchmove", this.swipeMove, {
-        passive: false,
-        signal: this.abortController.signal
-      });
+      this.list.addEventListener(
+        'touchmove',
+        this.swipeMove,
+        {
+          passive: false,
+          signal: this.abortController.signal,
+        }
+      );
 
-      this.list.addEventListener("touchend", this.touchEnd, {
-        passive: false,
-        signal: this.abortController.signal
-      });
+      this.list.addEventListener(
+        'touchend',
+        this.touchEnd,
+        {
+          passive: false,
+          signal: this.abortController.signal,
+        }
+      );
 
-      this.list.addEventListener("click", this.clickHandler, {
-        capture: true,
-        signal: this.abortController.signal
-      });
+      this.list.addEventListener(
+        'click',
+        this.clickHandler,
+        {
+          capture: true,
+          signal: this.abortController.signal,
+        }
+      );
     } else {
-      window.attachEvent("onresize", this.onWindowResized);
+      window.attachEvent('onresize', this.onWindowResized);
     }
   };
   componentWillUnmount = () => {
@@ -138,16 +169,21 @@ export class InnerSlider extends React.Component {
       clearInterval(this.lazyLoadTimer);
     }
     if (this.callbackTimers.length) {
-      this.callbackTimers.forEach(timer => clearTimeout(timer));
+      this.callbackTimers.forEach((timer) =>
+        clearTimeout(timer)
+      );
       this.callbackTimers = [];
     }
     if (window.addEventListener) {
-      window.removeEventListener("resize", this.onWindowResized);
+      window.removeEventListener(
+        'resize',
+        this.onWindowResized
+      );
 
       // Clear our touch listeners.
       this.abortController.abort();
     } else {
-      window.detachEvent("onresize", this.onWindowResized);
+      window.detachEvent('onresize', this.onWindowResized);
     }
     if (this.autoplayTimer) {
       clearInterval(this.autoplayTimer);
@@ -163,8 +199,8 @@ export class InnerSlider extends React.Component {
         break;
       }
       if (
-        typeof prevProps[key] === "object" ||
-        typeof prevProps[key] === "function"
+        typeof prevProps[key] === 'object' ||
+        typeof prevProps[key] === 'function'
       ) {
         continue;
       }
@@ -180,17 +216,19 @@ export class InnerSlider extends React.Component {
     );
   }
 
-  componentDidUpdate = prevProps => {
+  componentDidUpdate = (prevProps) => {
     this.checkImagesLoad();
     this.props.onReInit && this.props.onReInit();
     if (this.props.lazyLoad) {
       let slidesToLoad = getOnDemandLazySlides({
         ...this.props,
-        ...this.state
+        ...this.state,
       });
       if (slidesToLoad.length > 0) {
-        this.setState(prevState => ({
-          lazyLoadedList: prevState.lazyLoadedList.concat(slidesToLoad)
+        this.setState((prevState) => ({
+          lazyLoadedList: prevState.lazyLoadedList.concat(
+            slidesToLoad
+          ),
         }));
         if (this.props.onLazyLoad) {
           this.props.onLazyLoad(slidesToLoad);
@@ -205,51 +243,57 @@ export class InnerSlider extends React.Component {
       listRef: this.list,
       trackRef: this.track,
       ...this.props,
-      ...this.state
+      ...this.state,
     };
     const setTrackStyle = this.didPropsChange(prevProps);
     setTrackStyle &&
       this.updateState(spec, setTrackStyle, () => {
         if (
-          this.state.currentSlide >= React.Children.count(this.props.children)
+          this.state.currentSlide >=
+          React.Children.count(this.props.children)
         ) {
           this.changeSlide({
-            message: "index",
+            message: 'index',
             index:
               React.Children.count(this.props.children) -
               this.props.slidesToShow,
-            currentSlide: this.state.currentSlide
+            currentSlide: this.state.currentSlide,
           });
         }
         if (this.props.autoplay) {
-          this.autoPlay("update");
+          this.autoPlay('update');
         } else {
-          this.pause("paused");
+          this.pause('paused');
         }
       });
   };
-  onWindowResized = setTrackStyle => {
+  onWindowResized = (setTrackStyle) => {
     if (this.debouncedResize) this.debouncedResize.cancel();
-    this.debouncedResize = debounce(() => this.resizeWindow(setTrackStyle), 50);
+    this.debouncedResize = debounce(
+      () => this.resizeWindow(setTrackStyle),
+      50
+    );
     this.debouncedResize();
   };
   resizeWindow = (setTrackStyle = true) => {
-    const isTrackMounted = Boolean(this.track && this.track.node);
+    const isTrackMounted = Boolean(
+      this.track && this.track.node
+    );
     // prevent warning: setting state on unmounted component (server side rendering)
     if (!isTrackMounted) return;
     let spec = {
       listRef: this.list,
       trackRef: this.track,
       ...this.props,
-      ...this.state
+      ...this.state,
     };
     this.updateState(spec, setTrackStyle, () => {
-      if (this.props.autoplay) this.autoPlay("update");
-      else this.pause("paused");
+      if (this.props.autoplay) this.autoPlay('update');
+      else this.pause('paused');
     });
     // animating state should be cleared while resizing, otherwise autoplay stops working
     this.setState({
-      animating: false
+      animating: false,
     });
     clearTimeout(this.animationEndCallback);
     delete this.animationEndCallback;
@@ -259,7 +303,7 @@ export class InnerSlider extends React.Component {
     spec = {
       ...spec,
       ...updatedState,
-      slideIndex: updatedState.currentSlide
+      slideIndex: updatedState.currentSlide,
     };
     let targetLeft = getTrackLeft(spec);
     spec = { ...spec, left: targetLeft };
@@ -269,7 +313,7 @@ export class InnerSlider extends React.Component {
       React.Children.count(this.props.children) !==
         React.Children.count(spec.children)
     ) {
-      updatedState["trackStyle"] = trackStyle;
+      updatedState['trackStyle'] = trackStyle;
     }
     this.setState(updatedState, callback);
   };
@@ -282,20 +326,22 @@ export class InnerSlider extends React.Component {
       let preClones = getPreClones({
         ...this.props,
         ...this.state,
-        slideCount: this.props.children.length
+        slideCount: this.props.children.length,
       });
       let postClones = getPostClones({
         ...this.props,
         ...this.state,
-        slideCount: this.props.children.length
+        slideCount: this.props.children.length,
       });
-      this.props.children.forEach(child => {
+      this.props.children.forEach((child) => {
         childrenWidths.push(child.props.style.width);
         trackWidth += child.props.style.width;
       });
       for (let i = 0; i < preClones; i++) {
-        trackLeft += childrenWidths[childrenWidths.length - 1 - i];
-        trackWidth += childrenWidths[childrenWidths.length - 1 - i];
+        trackLeft +=
+          childrenWidths[childrenWidths.length - 1 - i];
+        trackWidth +=
+          childrenWidths[childrenWidths.length - 1 - i];
       }
       for (let i = 0; i < postClones; i++) {
         trackWidth += childrenWidths[i];
@@ -304,25 +350,33 @@ export class InnerSlider extends React.Component {
         trackLeft += childrenWidths[i];
       }
       let trackStyle = {
-        width: trackWidth + "px",
-        left: -trackLeft + "px"
+        width: trackWidth + 'px',
+        left: -trackLeft + 'px',
       };
       if (this.props.centerMode) {
-        let currentWidth = `${childrenWidths[this.state.currentSlide]}px`;
+        let currentWidth = `${
+          childrenWidths[this.state.currentSlide]
+        }px`;
         trackStyle.left = `calc(${trackStyle.left} + (100% - ${currentWidth}) / 2 ) `;
       }
       return {
-        trackStyle
+        trackStyle,
       };
     }
-    let childrenCount = React.Children.count(this.props.children);
+    let childrenCount = React.Children.count(
+      this.props.children
+    );
     const spec = {
       ...this.props,
       ...this.state,
-      slideCount: childrenCount
+      slideCount: childrenCount,
     };
-    let slideCount = getPreClones(spec) + getPostClones(spec) + childrenCount;
-    let trackWidth = (100 / this.props.slidesToShow) * slideCount;
+    let slideCount =
+      getPreClones(spec) +
+      getPostClones(spec) +
+      childrenCount;
+    let trackWidth =
+      (100 / this.props.slidesToShow) * slideCount;
     let slideWidth = 100 / slideCount;
     let trackLeft =
       (-slideWidth *
@@ -330,33 +384,36 @@ export class InnerSlider extends React.Component {
         trackWidth) /
       100;
     if (this.props.centerMode) {
-      trackLeft += (100 - (slideWidth * trackWidth) / 100) / 2;
+      trackLeft +=
+        (100 - (slideWidth * trackWidth) / 100) / 2;
     }
     let trackStyle = {
-      width: trackWidth + "%",
-      left: trackLeft + "%"
+      width: trackWidth + '%',
+      left: trackLeft + '%',
     };
     return {
-      slideWidth: slideWidth + "%",
-      trackStyle: trackStyle
+      slideWidth: slideWidth + '%',
+      trackStyle: trackStyle,
     };
   };
   checkImagesLoad = () => {
     let images =
       (this.list &&
         this.list.querySelectorAll &&
-        this.list.querySelectorAll(".slick-slide img")) ||
+        this.list.querySelectorAll('.slick-slide img')) ||
       [];
     let imagesCount = images.length,
       loadedCount = 0;
-    Array.prototype.forEach.call(images, image => {
+    Array.prototype.forEach.call(images, (image) => {
       const handler = () =>
-        ++loadedCount && loadedCount >= imagesCount && this.onWindowResized();
+        ++loadedCount &&
+        loadedCount >= imagesCount &&
+        this.onWindowResized();
       if (!image.onclick) {
         image.onclick = () => image.parentNode.focus();
       } else {
         const prevClickHandler = image.onclick;
-        image.onclick = e => {
+        image.onclick = (e) => {
           prevClickHandler(e);
           image.parentNode.focus();
         };
@@ -366,14 +423,18 @@ export class InnerSlider extends React.Component {
           image.onload = () => {
             this.adaptHeight();
             this.callbackTimers.push(
-              setTimeout(this.onWindowResized, this.props.speed)
+              setTimeout(
+                this.onWindowResized,
+                this.props.speed
+              )
             );
           };
         } else {
           image.onload = handler;
           image.onerror = () => {
             handler();
-            this.props.onLazyLoadError && this.props.onLazyLoadError();
+            this.props.onLazyLoadError &&
+              this.props.onLazyLoadError();
           };
         }
       }
@@ -403,8 +464,10 @@ export class InnerSlider extends React.Component {
       }
     }
     if (slidesToLoad.length > 0) {
-      this.setState(state => ({
-        lazyLoadedList: state.lazyLoadedList.concat(slidesToLoad)
+      this.setState((state) => ({
+        lazyLoadedList: state.lazyLoadedList.concat(
+          slidesToLoad
+        ),
       }));
       if (this.props.onLazyLoad) {
         this.props.onLazyLoad(slidesToLoad);
@@ -422,7 +485,7 @@ export class InnerSlider extends React.Component {
       beforeChange,
       onLazyLoad,
       speed,
-      afterChange
+      afterChange,
     } = this.props;
     // capture currentslide before state is updated
     const currentSlide = this.state.currentSlide;
@@ -431,15 +494,22 @@ export class InnerSlider extends React.Component {
       ...this.props,
       ...this.state,
       trackRef: this.track,
-      useCSS: this.props.useCSS && !dontAnimate
+      useCSS: this.props.useCSS && !dontAnimate,
     });
     if (!state) return;
-    beforeChange && beforeChange(currentSlide, state.currentSlide);
+    beforeChange &&
+      beforeChange(currentSlide, state.currentSlide);
     let slidesToLoad = state.lazyLoadedList.filter(
-      value => this.state.lazyLoadedList.indexOf(value) < 0
+      (value) =>
+        this.state.lazyLoadedList.indexOf(value) < 0
     );
-    onLazyLoad && slidesToLoad.length > 0 && onLazyLoad(slidesToLoad);
-    if (!this.props.waitForAnimate && this.animationEndCallback) {
+    onLazyLoad &&
+      slidesToLoad.length > 0 &&
+      onLazyLoad(slidesToLoad);
+    if (
+      !this.props.waitForAnimate &&
+      this.animationEndCallback
+    ) {
       clearTimeout(this.animationEndCallback);
       afterChange && afterChange(currentSlide);
       delete this.animationEndCallback;
@@ -455,7 +525,10 @@ export class InnerSlider extends React.Component {
         const { animating, ...firstBatch } = nextState;
         this.setState(firstBatch, () => {
           this.callbackTimers.push(
-            setTimeout(() => this.setState({ animating }), 10)
+            setTimeout(
+              () => this.setState({ animating }),
+              10
+            )
           );
           afterChange && afterChange(state.currentSlide);
           delete this.animationEndCallback;
@@ -472,13 +545,15 @@ export class InnerSlider extends React.Component {
     } else {
       this.slideHandler(targetSlide);
     }
-    this.props.autoplay && this.autoPlay("update");
+    this.props.autoplay && this.autoPlay('update');
     if (this.props.focusOnSelect) {
-      const nodes = this.list.querySelectorAll(".slick-current");
+      const nodes = this.list.querySelectorAll(
+        '.slick-current'
+      );
       nodes[0] && nodes[0].focus();
     }
   };
-  clickHandler = e => {
+  clickHandler = (e) => {
     if (this.clickable === false) {
       e.stopPropagation();
       e.stopImmediatePropagation();
@@ -486,18 +561,26 @@ export class InnerSlider extends React.Component {
     }
     this.clickable = true;
   };
-  keyHandler = e => {
-    let dir = keyHandler(e, this.props.accessibility, this.props.rtl);
-    dir !== "" && this.changeSlide({ message: dir });
+  keyHandler = (e) => {
+    let dir = keyHandler(
+      e,
+      this.props.accessibility,
+      this.props.rtl
+    );
+    dir !== '' && this.changeSlide({ message: dir });
   };
-  selectHandler = options => {
+  selectHandler = (options) => {
     this.changeSlide(options);
   };
-  swipeStart = e => {
-    let state = swipeStart(e, this.props.swipe, this.props.draggable);
-    state !== "" && this.setState(state);
+  swipeStart = (e) => {
+    let state = swipeStart(
+      e,
+      this.props.swipe,
+      this.props.draggable
+    );
+    state !== '' && this.setState(state);
   };
-  swipeMove = e => {
+  swipeMove = (e) => {
     if (!this.state.dragging) return;
 
     let state = swipeMove(e, {
@@ -505,30 +588,30 @@ export class InnerSlider extends React.Component {
       ...this.state,
       trackRef: this.track,
       listRef: this.list,
-      slideIndex: this.state.currentSlide
+      slideIndex: this.state.currentSlide,
     });
     if (!state) return;
-    if (state["swiping"]) {
+    if (state['swiping']) {
       this.clickable = false;
     }
     this.setState(state);
   };
-  swipeEnd = e => {
+  swipeEnd = (e) => {
     let state = swipeEnd(e, {
       ...this.props,
       ...this.state,
       trackRef: this.track,
       listRef: this.list,
-      slideIndex: this.state.currentSlide
+      slideIndex: this.state.currentSlide,
     });
     if (!state) return;
-    let triggerSlideHandler = state["triggerSlideHandler"];
-    delete state["triggerSlideHandler"];
+    let triggerSlideHandler = state['triggerSlideHandler'];
+    delete state['triggerSlideHandler'];
     this.setState(state);
     if (triggerSlideHandler === undefined) return;
     this.slideHandler(triggerSlideHandler);
   };
-  touchEnd = e => {
+  touchEnd = (e) => {
     this.swipeEnd(e);
     this.clickable = true;
   };
@@ -537,25 +620,31 @@ export class InnerSlider extends React.Component {
     // to make sure initialize setState has happened before
     // any of such methods are called
     this.callbackTimers.push(
-      setTimeout(() => this.changeSlide({ message: "previous" }), 0)
+      setTimeout(
+        () => this.changeSlide({ message: 'previous' }),
+        0
+      )
     );
   };
   slickNext = () => {
     this.callbackTimers.push(
-      setTimeout(() => this.changeSlide({ message: "next" }), 0)
+      setTimeout(
+        () => this.changeSlide({ message: 'next' }),
+        0
+      )
     );
   };
   slickGoTo = (slide, dontAnimate = false) => {
     slide = Number(slide);
-    if (isNaN(slide)) return "";
+    if (isNaN(slide)) return '';
     this.callbackTimers.push(
       setTimeout(
         () =>
           this.changeSlide(
             {
-              message: "index",
+              message: 'index',
               index: slide,
-              currentSlide: this.state.currentSlide
+              currentSlide: this.state.currentSlide,
             },
             dontAnimate
           ),
@@ -566,10 +655,13 @@ export class InnerSlider extends React.Component {
   play = () => {
     var nextIndex;
     if (this.props.rtl) {
-      nextIndex = this.state.currentSlide - this.props.slidesToScroll;
+      nextIndex =
+        this.state.currentSlide - this.props.slidesToScroll;
     } else {
       if (canGoNext({ ...this.props, ...this.state })) {
-        nextIndex = this.state.currentSlide + this.props.slidesToScroll;
+        nextIndex =
+          this.state.currentSlide +
+          this.props.slidesToScroll;
       } else {
         return false;
       }
@@ -578,96 +670,115 @@ export class InnerSlider extends React.Component {
     this.slideHandler(nextIndex);
   };
 
-  autoPlay = playType => {
+  autoPlay = (playType) => {
     if (this.autoplayTimer) {
       clearInterval(this.autoplayTimer);
     }
     const autoplaying = this.state.autoplaying;
-    if (playType === "update") {
+    if (playType === 'update') {
       if (
-        autoplaying === "hovered" ||
-        autoplaying === "focused" ||
-        autoplaying === "paused"
+        autoplaying === 'hovered' ||
+        autoplaying === 'focused' ||
+        autoplaying === 'paused'
       ) {
         return;
       }
-    } else if (playType === "leave") {
-      if (autoplaying === "paused" || autoplaying === "focused") {
+    } else if (playType === 'leave') {
+      if (
+        autoplaying === 'paused' ||
+        autoplaying === 'focused'
+      ) {
         return;
       }
-    } else if (playType === "blur") {
-      if (autoplaying === "paused" || autoplaying === "hovered") {
+    } else if (playType === 'blur') {
+      if (
+        autoplaying === 'paused' ||
+        autoplaying === 'hovered'
+      ) {
         return;
       }
     }
-    this.autoplayTimer = setInterval(this.play, this.props.autoplaySpeed + 50);
-    this.setState({ autoplaying: "playing" });
+    this.autoplayTimer = setInterval(
+      this.play,
+      this.props.autoplaySpeed + 50
+    );
+    this.setState({ autoplaying: 'playing' });
   };
-  pause = pauseType => {
+  pause = (pauseType) => {
     if (this.autoplayTimer) {
       clearInterval(this.autoplayTimer);
       this.autoplayTimer = null;
     }
     const autoplaying = this.state.autoplaying;
-    if (pauseType === "paused") {
-      this.setState({ autoplaying: "paused" });
-    } else if (pauseType === "focused") {
-      if (autoplaying === "hovered" || autoplaying === "playing") {
-        this.setState({ autoplaying: "focused" });
+    if (pauseType === 'paused') {
+      this.setState({ autoplaying: 'paused' });
+    } else if (pauseType === 'focused') {
+      if (
+        autoplaying === 'hovered' ||
+        autoplaying === 'playing'
+      ) {
+        this.setState({ autoplaying: 'focused' });
       }
     } else {
       // pauseType  is 'hovered'
-      if (autoplaying === "playing") {
-        this.setState({ autoplaying: "hovered" });
+      if (autoplaying === 'playing') {
+        this.setState({ autoplaying: 'hovered' });
       }
     }
   };
-  onDotsOver = () => this.props.autoplay && this.pause("hovered");
+  onDotsOver = () =>
+    this.props.autoplay && this.pause('hovered');
   onDotsLeave = () =>
     this.props.autoplay &&
-    this.state.autoplaying === "hovered" &&
-    this.autoPlay("leave");
-  onTrackOver = () => this.props.autoplay && this.pause("hovered");
+    this.state.autoplaying === 'hovered' &&
+    this.autoPlay('leave');
+  onTrackOver = () =>
+    this.props.autoplay && this.pause('hovered');
   onTrackLeave = () =>
     this.props.autoplay &&
-    this.state.autoplaying === "hovered" &&
-    this.autoPlay("leave");
-  onSlideFocus = () => this.props.autoplay && this.pause("focused");
+    this.state.autoplaying === 'hovered' &&
+    this.autoPlay('leave');
+  onSlideFocus = () =>
+    this.props.autoplay && this.pause('focused');
   onSlideBlur = () =>
     this.props.autoplay &&
-    this.state.autoplaying === "focused" &&
-    this.autoPlay("blur");
+    this.state.autoplaying === 'focused' &&
+    this.autoPlay('blur');
 
   render = () => {
-    var className = classnames("slick-slider", this.props.className, {
-      "slick-vertical": this.props.vertical,
-      "slick-initialized": true
-    });
+    var className = classnames(
+      'slick-slider',
+      this.props.className,
+      {
+        'slick-vertical': this.props.vertical,
+        'slick-initialized': true,
+      }
+    );
     let spec = { ...this.props, ...this.state };
     let trackProps = extractObject(spec, [
-      "fade",
-      "cssEase",
-      "speed",
-      "infinite",
-      "centerMode",
-      "focusOnSelect",
-      "currentSlide",
-      "lazyLoad",
-      "lazyLoadedList",
-      "rtl",
-      "slideWidth",
-      "slideHeight",
-      "listHeight",
-      "vertical",
-      "slidesToShow",
-      "slidesToScroll",
-      "slideCount",
-      "trackStyle",
-      "variableWidth",
-      "unslick",
-      "centerPadding",
-      "targetSlide",
-      "useCSS"
+      'fade',
+      'cssEase',
+      'speed',
+      'infinite',
+      'centerMode',
+      'focusOnSelect',
+      'currentSlide',
+      'lazyLoad',
+      'lazyLoadedList',
+      'rtl',
+      'slideWidth',
+      'slideHeight',
+      'listHeight',
+      'vertical',
+      'slidesToShow',
+      'slidesToScroll',
+      'slideCount',
+      'trackStyle',
+      'variableWidth',
+      'unslick',
+      'centerPadding',
+      'targetSlide',
+      'useCSS',
     ]);
     const { pauseOnHover } = this.props;
     trackProps = {
@@ -676,7 +787,9 @@ export class InnerSlider extends React.Component {
       onMouseLeave: pauseOnHover ? this.onTrackLeave : null,
       onMouseOver: pauseOnHover ? this.onTrackOver : null,
       focusOnSelect:
-        this.props.focusOnSelect && this.clickable ? this.selectHandler : null
+        this.props.focusOnSelect && this.clickable
+          ? this.selectHandler
+          : null,
     };
 
     var dots;
@@ -685,37 +798,43 @@ export class InnerSlider extends React.Component {
       this.state.slideCount >= this.props.slidesToShow
     ) {
       let dotProps = extractObject(spec, [
-        "dotsClass",
-        "slideCount",
-        "slidesToShow",
-        "currentSlide",
-        "slidesToScroll",
-        "clickHandler",
-        "children",
-        "customPaging",
-        "infinite",
-        "appendDots"
+        'dotsClass',
+        'slideCount',
+        'slidesToShow',
+        'currentSlide',
+        'slidesToScroll',
+        'clickHandler',
+        'children',
+        'customPaging',
+        'infinite',
+        'appendDots',
       ]);
       const { pauseOnDotsHover } = this.props;
       dotProps = {
         ...dotProps,
         clickHandler: this.changeSlide,
-        onMouseEnter: pauseOnDotsHover ? this.onDotsLeave : null,
-        onMouseOver: pauseOnDotsHover ? this.onDotsOver : null,
-        onMouseLeave: pauseOnDotsHover ? this.onDotsLeave : null
+        onMouseEnter: pauseOnDotsHover
+          ? this.onDotsLeave
+          : null,
+        onMouseOver: pauseOnDotsHover
+          ? this.onDotsOver
+          : null,
+        onMouseLeave: pauseOnDotsHover
+          ? this.onDotsLeave
+          : null,
       };
       dots = <Dots {...dotProps} />;
     }
 
     var prevArrow, nextArrow;
     let arrowProps = extractObject(spec, [
-      "infinite",
-      "centerMode",
-      "currentSlide",
-      "slideCount",
-      "slidesToShow",
-      "prevArrow",
-      "nextArrow"
+      'infinite',
+      'centerMode',
+      'currentSlide',
+      'slideCount',
+      'slidesToShow',
+      'prevArrow',
+      'nextArrow',
     ]);
     arrowProps.clickHandler = this.changeSlide;
 
@@ -728,7 +847,7 @@ export class InnerSlider extends React.Component {
 
     if (this.props.vertical) {
       verticalHeightStyle = {
-        height: this.state.listHeight
+        height: this.state.listHeight,
       };
     }
 
@@ -737,53 +856,69 @@ export class InnerSlider extends React.Component {
     if (this.props.vertical === false) {
       if (this.props.centerMode === true) {
         centerPaddingStyle = {
-          padding: "0px " + this.props.centerPadding
+          padding: '0px ' + this.props.centerPadding,
         };
       }
     } else {
       if (this.props.centerMode === true) {
         centerPaddingStyle = {
-          padding: this.props.centerPadding + " 0px"
+          padding: this.props.centerPadding + ' 0px',
         };
       }
     }
 
     const listStyle = {
       ...verticalHeightStyle,
-      ...centerPaddingStyle
+      ...centerPaddingStyle,
     };
     const touchMove = this.props.touchMove;
     let listProps = {
-      className: "slick-list",
+      className: 'slick-list',
       style: listStyle,
       onMouseDown: touchMove ? this.swipeStart : null,
-      onMouseMove: this.state.dragging && touchMove ? this.swipeMove : null,
+      onMouseMove:
+        this.state.dragging && touchMove
+          ? this.swipeMove
+          : null,
       onMouseUp: touchMove ? this.swipeEnd : null,
-      onMouseLeave: this.state.dragging && touchMove ? this.swipeEnd : null,
-      onTouchCancel: this.state.dragging && touchMove ? this.swipeEnd : null,
-      onKeyDown: this.props.accessibility ? this.keyHandler : null
+      onMouseLeave:
+        this.state.dragging && touchMove
+          ? this.swipeEnd
+          : null,
+      onTouchCancel:
+        this.state.dragging && touchMove
+          ? this.swipeEnd
+          : null,
+      onKeyDown: this.props.accessibility
+        ? this.keyHandler
+        : null,
     };
 
     let innerSliderProps = {
       className: className,
-      dir: "ltr",
-      style: this.props.style
+      dir: 'ltr',
+      style: this.props.style,
     };
 
     if (this.props.unslick) {
-      listProps = { className: "slick-list" };
+      listProps = { className: 'slick-list' };
       innerSliderProps = { className };
     }
+
     return (
       <div {...innerSliderProps}>
-        {!this.props.unslick ? prevArrow : ""}
-        <div ref={this.listRefHandler} {...listProps}>
+        {!this.props.unslick ? prevArrow : ''}
+        <div
+          ref={this.listRefHandler}
+          {...listProps}
+          // style={{ touchAction }}
+        >
           <Track ref={this.trackRefHandler} {...trackProps}>
             {this.props.children}
           </Track>
         </div>
-        {!this.props.unslick ? nextArrow : ""}
-        {!this.props.unslick ? dots : ""}
+        {!this.props.unslick ? nextArrow : ''}
+        {!this.props.unslick ? dots : ''}
       </div>
     );
   };

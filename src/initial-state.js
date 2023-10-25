@@ -23,6 +23,7 @@ const initialState = {
   trackStyle: {},
   trackWidth: 0,
   targetSlide: 0,
+  touchAction: 'none',
 };
 
 export default initialState;
