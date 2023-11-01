@@ -1,23 +1,25 @@
-import React from "react";
+import React from 'react';
 
 let defaultProps = {
   accessibility: true,
   adaptiveHeight: false,
   afterChange: null,
-  appendDots: dots => <ul style={{ display: "block" }}>{dots}</ul>,
+  appendDots: (dots) => (
+    <ul style={{ display: 'block' }}>{dots}</ul>
+  ),
   arrows: true,
   autoplay: false,
   autoplaySpeed: 3000,
   beforeChange: null,
   centerMode: false,
-  centerPadding: "50px",
-  className: "",
-  cssEase: "ease",
-  customPaging: i => <button>{i + 1}</button>,
+  centerPadding: '50px',
+  className: '',
+  cssEase: 'ease',
+  customPaging: (i) => <button>{i + 1}</button>,
   dots: false,
-  dotsClass: "slick-dots",
+  dotsClass: 'slick-dots',
   draggable: true,
-  easing: "linear",
+  easing: 'linear',
   edgeFriction: 0.35,
   fade: false,
   focusOnSelect: false,
@@ -36,10 +38,11 @@ let defaultProps = {
   responsive: null,
   rows: 1,
   rtl: false,
-  slide: "div",
+  slide: 'div',
   slidesPerRow: 1,
   slidesToScroll: 1,
   slidesToShow: 1,
+  slidesToLoad: 0,
   speed: 500,
   swipe: true,
   swipeEvent: null,
@@ -50,7 +53,7 @@ let defaultProps = {
   useTransform: true,
   variableWidth: false,
   vertical: false,
-  waitForAnimate: true
+  waitForAnimate: true,
 };
 
 export default defaultProps;
