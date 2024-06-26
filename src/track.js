@@ -91,7 +91,7 @@ const getSlideStyle = (spec) => {
 };
 
 const getKey = (child, fallbackKey) =>
-  child.key || fallbackKey;
+  child.key || child.memoKey || fallbackKey;
 
 const renderSlides = (spec) => {
   let key;
