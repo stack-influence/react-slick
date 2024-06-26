@@ -1,15 +1,15 @@
-var webpack = require("webpack");
-var path = require("path");
+var webpack = require('webpack');
+var path = require('path');
 
 module.exports = {
-  mode: "production",
+  mode: 'production',
 
-  entry: "./src/index",
+  entry: './src/index',
 
   output: {
-    library: "Slider",
-    libraryTarget: "umd",
-    path: path.join(__dirname, "dist")
+    library: 'Slider',
+    libraryTarget: 'umd',
+    path: path.join(__dirname, 'dist'),
   },
 
   module: {
@@ -18,40 +18,46 @@ module.exports = {
         test: /\.js/,
         exclude: /(node_modules)/,
         use: {
-          loader: "babel-loader"
-        }
-      }
-    ]
+          loader: 'babel-loader',
+        },
+      },
+    ],
   },
 
   resolve: {
-    extensions: [".js", ".jsx"]
+    extensions: ['.js', '.jsx'],
   },
 
   externals: {
     react: {
-      root: "React",
-      commonjs2: "react",
-      commonjs: "react",
-      amd: "react"
+      root: 'React',
+      commonjs2: 'react',
+      commonjs: 'react',
+      amd: 'react',
     },
-    "react-dom": {
-      root: "ReactDOM",
-      commonjs2: "react-dom",
-      commonjs: "react-dom",
-      amd: "react-dom"
-    }
+    'react-dom': {
+      root: 'ReactDOM',
+      commonjs2: 'react-dom',
+      commonjs: 'react-dom',
+      amd: 'react-dom',
+    },
+    'framer-motion': {
+      root: 'FramerMotion',
+      commonjs2: 'framer-motion',
+      commonjs: 'framer-motion',
+      amd: 'framer-motion',
+    },
   },
 
   node: {
-    Buffer: false
+    Buffer: false,
   },
 
-  devtool: "source-map",
+  devtool: 'source-map',
 
   performance: {
-    hints: "warning"
+    hints: 'warning',
   },
 
-  plugins: []
+  plugins: [],
 };
