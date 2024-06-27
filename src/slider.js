@@ -194,7 +194,7 @@ export default class Slider extends React.Component {
           if (k >= children.length) break;
           row.push(
             React.cloneElement(children[k], {
-              key: children[k].props.memoKey,
+              key: 100 * i + 10 * j + k,
               tabIndex: -1,
               style: {
                 width: `${100 / settings.slidesPerRow}%`,
@@ -212,11 +212,7 @@ export default class Slider extends React.Component {
           </div>
         );
       } else {
-        newChildren.push(
-          <div key={children[i].props.memoKey}>
-            {newSlide}
-          </div>
-        );
+        newChildren.push(<div key={i}>{newSlide}</div>);
       }
     }
 

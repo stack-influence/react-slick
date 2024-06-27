@@ -7,7 +7,6 @@ import {
   lazyEndIndex,
   getPreClones,
 } from './utils/innerSliderUtils';
-import { AnimatePresence } from 'framer-motion';
 
 // given specifications/props for a slide, fetch all the classes that need to be applied to the slide
 const getSlideClasses = (spec) => {
@@ -91,7 +90,7 @@ const getSlideStyle = (spec) => {
 };
 
 const getKey = (child, fallbackKey) =>
-  child.key || child.memoKey || fallbackKey;
+  child.key || fallbackKey;
 
 const renderSlides = (spec) => {
   let key;
@@ -255,7 +254,7 @@ export class Track extends React.PureComponent {
         style={this.props.trackStyle}
         {...mouseEvents}
       >
-        <AnimatePresence>{slides}</AnimatePresence>
+        {slides}
       </div>
     );
   }
